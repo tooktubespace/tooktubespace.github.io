@@ -12,7 +12,6 @@
         <script src="js/OBJLoader.js"></script>
 
         <script>
-            function init() {
             var scene = new THREE.Scene();
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
@@ -20,42 +19,53 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
+            var geometry = new THREE.BoxGeometry(1, 1, 1);
+            var material = new THREE.MeshBasicMaterial({color: 0xFFFFFF});
+
             window.addEventListener('resize', function() {
                 var width = window.innerWidth;
                 var height = window.innerHeight;
                 renderer.setSize(width, height);
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
-            }); 
-            
-            
-            controls = new THREE.OrbitControls( camera, renderer.domElement);
-            controls.addEventListener('change', renderer);
-            camera.position.z = 3;
-            
-            var ambientLight = new THREE.AmbientLight( 0xFFFFFF, 5.0);
-            scene.add(ambientLight);
-
-            var renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
-                   
-
-            let loader = new THREE.GLTFLoader();
-            loader.load('scene.gltf', function(gltf){
-            space = gltf.scene.children[0];
-            space.scale.set(0.5,0.5,0.5);
-            scene.add(gltf.scene);
             });
 
-            function animate() {
-                    renderer.render(scene,camera);
-                    requestAnimationFrame(animate);
-                }
+            camera.position.z = 20;
+
+            var controls =  new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.campingFactor = 0.25;
+            controls.enableZoom = true;
+
+            var keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+            keyLight.position.set(100,0,100);
+            var fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+            fillLight.position.set(100,0,100);
+            var backLight = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+            backLight.position.set(-100,0,100).normalize();
+
+            scene.add(keyLight);
+            scene.add(fillLight);
+            scene.add(backLight);
+
+            var objLoader = new THREE.OBJLoader();
+            objLoader.load('scene.obj', function(object) {
+                object.position.y -= 60;
+                scene.add(object);
+            })
+            objLoader.load('')
 
 
+            var animate = function () {
+                requestAnimationFrame( animate);
+
+                controls.update();
+                renderer.render(scene, camera);
+                
             }
-            init();
+
+            animate();
+
         </script>
     </body>
 </html>
